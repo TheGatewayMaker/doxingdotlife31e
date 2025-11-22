@@ -314,6 +314,7 @@ const CITIES_BY_COUNTRY: Record<string, string[]> = {
 };
 
 export default function Index() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCountry, setSelectedCountry] = useState("");
   const [selectedCity, setSelectedCity] = useState("");
