@@ -60,14 +60,13 @@ const getBucketName = (): string => {
 };
 
 export const getMediaUrl = (key: string): string => {
-  const endpoint = process.env.R2_ENDPOINT;
-  const bucketName = getBucketName();
+  const publicUrl = process.env.R2_PUBLIC_URL;
 
-  if (!endpoint) {
-    throw new Error("Missing R2_ENDPOINT");
+  if (!publicUrl) {
+    throw new Error("Missing R2_PUBLIC_URL");
   }
 
-  return `${endpoint}/${bucketName}/${key}`;
+  return `${publicUrl}/${key}`;
 };
 
 export const uploadMediaFile = async (
