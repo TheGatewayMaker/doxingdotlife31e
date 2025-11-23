@@ -461,8 +461,8 @@ export default function Index() {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {/* Country Dropdown */}
                 <div className="relative group">
-                  <label className="text-sm font-bold text-foreground block mb-3 flex items-center gap-2">
-                    <GlobeIcon className="w-4 h-4 text-accent" />
+                  <label className="text-sm font-bold text-yellow-500 block mb-3 flex items-center gap-2">
+                    <GlobeIcon className="w-4 h-4 text-yellow-500" />
                     By Country
                   </label>
                   <input
