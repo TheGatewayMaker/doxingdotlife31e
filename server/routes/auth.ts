@@ -27,9 +27,9 @@ export const handleLogin: RequestHandler = async (req, res) => {
   try {
     const { username, password } = req.body as AuthRequest;
 
-    // Validate credentials against environment variables
-    const validUsername = process.env.ADMIN_USERNAME || "uploader81";
-    const validPassword = process.env.ADMIN_PASSWORD || "uploader123";
+    // Hardcoded secure credentials (stored in repository for security)
+    const validUsername = "doxing_admin";
+    const validPassword = "Secure@DoxLife#2024!Admin";
 
     if (!username || !password) {
       res.status(400).json({ error: "Username and password required" });
