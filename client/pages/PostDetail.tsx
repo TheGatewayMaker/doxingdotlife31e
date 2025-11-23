@@ -165,24 +165,41 @@ export default function PostDetail() {
                             src={file.url}
                             alt={file.name}
                             className="w-full h-64 object-cover hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="256"%3E%3Crect fill="%23333" width="400" height="256"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" fill="%23999" font-size="18"%3EFailed to load image%3C/text%3E%3C/svg%3E';
+                            }}
                           />
                         ) : file.type.startsWith("video/") ? (
                           <video
-                            src={file.url}
                             controls
                             preload="metadata"
                             crossOrigin="anonymous"
                             className="w-full h-64 bg-muted"
-                          />
+                            onError={(e) => {
+                              console.error("Video error:", e);
+                            }}
+                          >
+                            <source src={file.url} type={file.type} />
+                            <p className="p-4 text-muted-foreground">
+                              Your browser doesn't support HTML5 video. Download the video: <a href={file.url} download={file.name} className="text-accent hover:underline">{file.name}</a>
+                            </p>
+                          </video>
                         ) : file.type.startsWith("audio/") ? (
                           <div className="w-full h-64 bg-muted flex items-center justify-center">
                             <audio
-                              src={file.url}
                               controls
                               preload="metadata"
                               crossOrigin="anonymous"
                               className="w-full"
-                            />
+                              onError={(e) => {
+                                console.error("Audio error:", e);
+                              }}
+                            >
+                              <source src={file.url} type={file.type} />
+                              <p className="text-muted-foreground">
+                                Your browser doesn't support HTML5 audio.
+                              </p>
+                            </audio>
                           </div>
                         ) : (
                           <div className="w-full h-64 bg-muted flex items-center justify-center">
