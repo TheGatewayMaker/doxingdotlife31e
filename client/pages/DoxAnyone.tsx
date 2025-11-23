@@ -88,10 +88,10 @@ export default function DoxAnyone() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1 sm:mb-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
                     Create a Support Ticket on Discord
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-400">
                     Create a support ticket on our Discord Server with your
                     doxing request details.
                   </p>
@@ -105,10 +105,10 @@ export default function DoxAnyone() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1 sm:mb-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
                     Prepare Your Content
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-400">
                     Make sure to have a photo and some details for the specific
                     person you want to dox. The more information you provide,
                     the better.
@@ -123,10 +123,10 @@ export default function DoxAnyone() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1 sm:mb-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
                     Payment & Verification
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-400">
                     Complete the payment as per the pricing in your region. One
                     of our moderators will verify your submission.
                   </p>
@@ -140,10 +140,10 @@ export default function DoxAnyone() {
                   </div>
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-semibold text-foreground mb-1 sm:mb-2">
+                  <h3 className="text-base sm:text-lg font-semibold text-white mb-1 sm:mb-2">
                     Publication
                   </h3>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-400">
                     After payment confirmation and verification, one of our
                     moderators will post your dox on our website.
                   </p>
