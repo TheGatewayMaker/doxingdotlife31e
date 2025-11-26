@@ -123,6 +123,27 @@ export default function UppostPanel() {
       return;
     }
 
+    // Validate file sizes (500MB = 500 * 1024 * 1024 bytes)
+    const MAX_FILE_SIZE = 500 * 1024 * 1024;
+    const oversizedFiles: string[] = [];
+
+    if (thumbnail && thumbnail.size > MAX_FILE_SIZE) {
+      oversizedFiles.push(`Thumbnail (${(thumbnail.size / 1024 / 1024).toFixed(2)}MB)`);
+    }
+
+    for (const file of mediaFiles) {
+      if (file.size > MAX_FILE_SIZE) {
+        oversizedFiles.push(`${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+      }
+    }
+
+    if (oversizedFiles.length > 0) {
+      setUploadError(
+        `The following files exceed 500MB: ${oversizedFiles.join(", ")}`,
+      );
+      return;
+    }
+
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
