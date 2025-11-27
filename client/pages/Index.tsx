@@ -677,7 +677,7 @@ export default function Index() {
                         <img
                           src={post.thumbnail}
                           alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                          className="w-full h-full object-cover"
                           onError={(e) => {
                             const img = e.target as HTMLImageElement;
                             img.style.display = "none";
