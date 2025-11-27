@@ -235,6 +235,11 @@ export default function PostDetail() {
         </div>
       </main>
       <Footer />
+      {post.nsfw && (
+        <div className="fixed bottom-0 left-0 right-0 bg-red-900/80 border-t border-red-600 px-4 py-2 text-center text-sm text-red-200">
+          ⚠️ This is NSFW content. Please ensure you're viewing in an appropriate setting.
+        </div>
+      )}
     </div>
   );
 }
