@@ -108,6 +108,8 @@ export default function EditPostModal({
   const [city, setCity] = useState(post.city || "");
   const [server, setServer] = useState(post.server || "");
   const [nsfw, setNsfw] = useState(post.nsfw || false);
+  const [isTrend, setIsTrend] = useState(post.isTrend || false);
+  const [trendRank, setTrendRank] = useState(String(post.trendRank || ""));
   const [isSaving, setIsSaving] = useState(false);
   const [countrySearch, setCountrySearch] = useState("");
 
