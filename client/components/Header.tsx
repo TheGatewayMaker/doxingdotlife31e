@@ -15,7 +15,9 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const closeSidebar = () => setIsSidebarOpen(false);
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -24,7 +26,7 @@ export default function Header() {
   };
 
   return (
-    <header className="w-full bg-[#000000] backdrop-blur-md border-b border-[#666666] shadow-lg animate-fadeIn sticky top-0 z-40">
+    <header className="w-full bg-[#000000] backdrop-blur-md border-b border-[#666666] shadow-lg animate-slideInDown sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
         <Link
           to="/"
@@ -46,10 +48,10 @@ export default function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+        <nav className="hidden lg:flex items-center gap-6 xl:gap-8 animate-fadeIn" style={{ animationDelay: "0.2s" }}>
           <Link
             to="/"
-            className="flex items-center gap-2 text-sm font-semibold text-[#979797] hover:text-white transition-colors duration-200"
+            className="flex items-center gap-2 text-sm font-semibold text-[#979797] hover:text-white transition-colors duration-200 hover:scale-105"
           >
             <HomeIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             <span className="hidden xl:inline">Home</span>
@@ -121,7 +123,7 @@ export default function Header() {
             />
 
             {/* Sidebar */}
-            <div className="fixed left-0 top-16 bottom-0 w-64 sm:w-72 bg-[#000000] border-r border-[#666666] lg:hidden z-40 animate-slideInLeft shadow-2xl flex flex-col">
+            <div className="fixed left-0 top-16 bottom-0 w-64 sm:w-72 bg-[#000000] border-r border-[#666666] lg:hidden z-40 animate-slideInLeft shadow-2xl flex flex-col" style={{ animationDuration: "0.4s" }}>
               <nav className="p-4 space-y-2 overflow-y-auto flex-1">
                 <Link
                   to="/"
