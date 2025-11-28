@@ -193,11 +193,11 @@ export default function PostDetail() {
               <div className="mb-4">
                 <div className="flex flex-wrap items-center gap-2 mb-4">
                   {post.nsfw && (
-                    <span className="inline-flex items-center px-3 py-1 bg-red-700 text-white text-xs font-bold rounded-full">
+                    <span className="inline-flex items-center px-3 py-1 bg-gray-600 text-white text-xs font-bold rounded-full">
                       NSFW
                     </span>
                   )}
-                  <span className="inline-flex items-center px-3 py-1 bg-blue-600/20 text-blue-300 text-xs font-semibold rounded-full border border-blue-500/30">
+                  <span className="inline-flex items-center px-3 py-1 bg-gray-700 text-gray-300 text-xs font-semibold rounded-full border border-gray-600">
                     📰 Post
                   </span>
                 </div>
@@ -207,7 +207,7 @@ export default function PostDetail() {
               </div>
 
               {/* Post Metadata */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-xs sm:text-sm text-gray-400 space-y-2 sm:space-y-0">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-xs sm:text-sm text-gray-500 space-y-2 sm:space-y-0">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">📅</span>
                   <span>
@@ -218,7 +218,7 @@ export default function PostDetail() {
                     })}
                   </span>
                 </div>
-                <div className="hidden sm:block w-1 h-1 bg-gray-600 rounded-full"></div>
+                <div className="hidden sm:block w-1 h-1 bg-gray-700 rounded-full"></div>
                 <div className="flex items-center gap-2">
                   <span className="text-lg">🕒</span>
                   <span>
