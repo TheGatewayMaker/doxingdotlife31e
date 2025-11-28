@@ -25,14 +25,8 @@ export const handler = async (event: any, context: any) => {
         "video/*",
         "application/octet-stream",
         "multipart/form-data",
+        "*/*",
       ],
-      request(request: any) {
-        // Ensure the request body is properly passed through
-        if (!request.body) {
-          request.body = "";
-        }
-        return request;
-      },
     });
 
     return await serverlessHandler(event, context);
