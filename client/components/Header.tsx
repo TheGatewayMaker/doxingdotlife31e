@@ -125,6 +125,13 @@ export default function Header() {
                   Home
                 </Link>
                 <Link
+                  to="/all-posts"
+                  onClick={closeSidebar}
+                  className="flex items-center gap-3 w-full px-4 py-3 text-gray-300 font-semibold hover:bg-slate-700 hover:text-white rounded-lg transition-colors"
+                >
+                  All Posts
+                </Link>
+                <Link
                   to="/dox-anyone"
                   onClick={closeSidebar}
                   className="flex items-center gap-3 w-full px-4 py-3 text-white font-semibold hover:bg-blue-600 rounded-lg transition-colors bg-blue-600/20"
