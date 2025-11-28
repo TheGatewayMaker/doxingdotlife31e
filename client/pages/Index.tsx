@@ -389,8 +389,8 @@ export default function Index() {
 
                 {/* Server Dropdown */}
                 <div className="relative group">
-                  <label className="text-xs sm:text-sm font-bold text-gray-400 block mb-2 flex items-center gap-2">
-                    <ServerIcon className="w-4 h-4 text-gray-500" />
+                  <label className="text-xs sm:text-sm font-bold text-white block mb-2 flex items-center gap-2">
+                    <ServerIcon className="w-4 h-4 text-[#979797]" />
                     By Server
                   </label>
                   <div className="relative">
