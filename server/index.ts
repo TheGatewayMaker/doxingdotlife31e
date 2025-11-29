@@ -36,6 +36,42 @@ export function createServer() {
   app.use(express.json({ limit: "50mb" }));
   app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
+  // Error handling for body parsing
+  app.use(
+    (
+      err: any,
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction,
+    ) => {
+      if (err instanceof SyntaxError && "body" in err) {
+        console.error("JSON parse error:", err);
+        return res.status(400).json({
+          error: "Invalid JSON in request body",
+          details:
+            process.env.NODE_ENV === "development" ? err.message : undefined,
+        });
+      }
+      next(err);
+    },
+  );
+
+  // Request logging middleware
+  app.use((req, res, next) => {
+    const start = Date.now();
+    const originalJson = res.json;
+
+    res.json = function (body) {
+      const duration = Date.now() - start;
+      console.log(
+        `[${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`,
+      );
+      return originalJson.call(this, body);
+    };
+
+    next();
+  });
+
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
     const hasFirebaseConfig = !!process.env.FIREBASE_PROJECT_ID;
@@ -70,25 +106,87 @@ export function createServer() {
   app.get("/api/auth/check", handleCheckAuth);
 
   // Forum API routes
-  // Longer timeout for upload endpoint (5 minutes) to handle large files and multiple attachments
+  // Longer timeout for upload endpoint (10 minutes) to handle large files and multiple attachments
   const uploadTimeout = (
     req: express.Request,
     res: express.Response,
     next: express.NextFunction,
   ) => {
-    req.setTimeout(5 * 60 * 1000); // 5 minutes
-    res.setTimeout(5 * 60 * 1000);
+    const timeout = 10 * 60 * 1000; // 10 minutes
+    req.setTimeout(timeout);
+    res.setTimeout(timeout);
+
+    // Handle timeout errors
+    req.on("timeout", () => {
+      console.error("Request timeout for upload");
+      if (!res.headersSent) {
+        res.status(408).json({
+          error: "Request timeout",
+          details: "Upload took too long to complete",
+        });
+      }
+    });
+
+    res.on("timeout", () => {
+      console.error("Response timeout for upload");
+      if (!res.headersSent) {
+        res.status(408).json({
+          error: "Response timeout",
+          details: "Server took too long to respond",
+        });
+      }
+    });
+
     next();
+  };
+
+  // Multer error handling middleware
+  const multerErrorHandler = (
+    err: any,
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction,
+  ) => {
+    if (err.name === "MulterError") {
+      console.error("Multer error:", err);
+      if (err.code === "FILE_TOO_LARGE") {
+        return res.status(413).json({
+          error: "File too large",
+          details: `Maximum file size is ${err.limit} bytes`,
+        });
+      }
+      if (err.code === "LIMIT_FILE_COUNT") {
+        return res.status(400).json({
+          error: "Too many files",
+          details: err.message,
+        });
+      }
+      return res.status(400).json({
+        error: "File upload error",
+        details:
+          process.env.NODE_ENV === "development"
+            ? err.message
+            : "Failed to parse file upload",
+      });
+    }
+    next(err);
   };
 
   app.post(
     "/api/upload",
     uploadTimeout,
     authMiddleware,
-    upload.fields([
-      { name: "media", maxCount: 100 }, // Support up to 100 files
-      { name: "thumbnail", maxCount: 1 },
-    ]),
+    (req, res, next) => {
+      upload.fields([
+        { name: "media", maxCount: 100 },
+        { name: "thumbnail", maxCount: 1 },
+      ])(req, res, (err) => {
+        if (err) {
+          return multerErrorHandler(err, req, res, next);
+        }
+        next();
+      });
+    },
     handleUpload,
   );
 
@@ -153,6 +251,23 @@ export function createServer() {
     }
   });
 
+  // Catch-all async error handler wrapper
+  const asyncHandler = (
+    fn: (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction,
+    ) => Promise<any>,
+  ) => {
+    return (
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction,
+    ) => {
+      Promise.resolve(fn(req, res, next)).catch(next);
+    };
+  };
+
   // Global error handler middleware - MUST be last
   app.use(
     (
@@ -165,16 +280,24 @@ export function createServer() {
 
       // Prevent sending response twice
       if (res.headersSent) {
-        return next(err);
+        console.error("Headers already sent, cannot send error response");
+        return;
       }
 
-      const status = err.status || err.statusCode || 500;
+      // Set Content-Type to JSON to ensure proper response format
+      res.set("Content-Type", "application/json");
+
+      const status =
+        err.status ||
+        err.statusCode ||
+        (err.name === "MulterError" ? 400 : 500);
       const message = err.message || "An unexpected error occurred";
       const details =
         process.env.NODE_ENV === "development"
           ? {
               message: err.message,
               stack: err.stack,
+              errorName: err.name,
             }
           : undefined;
 

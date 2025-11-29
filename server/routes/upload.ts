@@ -48,7 +48,20 @@ const detectImageMimeType = (
 };
 
 export const handleUpload: RequestHandler = async (req, res, next) => {
+  let responseSent = false;
+
   try {
+    // Ensure we have files from multer
+    if (!req.files || typeof req.files !== "object") {
+      console.error("Invalid files object from multer", {
+        filesType: typeof req.files,
+        filesKeys: req.files ? Object.keys(req.files) : [],
+      });
+      res.status(400).json({ error: "Files object is missing or invalid" });
+      responseSent = true;
+      return;
+    }
+
     const { title, description, country, city, server, nsfw } =
       req.body as UploadRequest;
     const files = req.files as
@@ -65,6 +78,7 @@ export const handleUpload: RequestHandler = async (req, res, next) => {
         thumbnail: !!files?.thumbnail,
       });
       res.status(400).json({ error: "Missing required fields" });
+      responseSent = true;
       return;
     }
 
@@ -74,12 +88,18 @@ export const handleUpload: RequestHandler = async (req, res, next) => {
         mediaType: typeof files.media,
         mediaKeys: Object.keys(files.media || {}),
       });
-      res.status(400).json({ error: "Media files format is invalid" });
+      if (!res.headersSent) {
+        res.status(400).json({ error: "Media files format is invalid" });
+        responseSent = true;
+      }
       return;
     }
 
     if (files.media.length === 0) {
-      res.status(400).json({ error: "At least one media file is required" });
+      if (!res.headersSent) {
+        res.status(400).json({ error: "At least one media file is required" });
+        responseSent = true;
+      }
       return;
     }
 
@@ -91,7 +111,10 @@ export const handleUpload: RequestHandler = async (req, res, next) => {
           ? files.thumbnail.length
           : 0,
       });
-      res.status(400).json({ error: "Thumbnail is required" });
+      if (!res.headersSent) {
+        res.status(400).json({ error: "Thumbnail is required" });
+        responseSent = true;
+      }
       return;
     }
 
@@ -215,12 +238,15 @@ export const handleUpload: RequestHandler = async (req, res, next) => {
         `[${new Date().toISOString()}] ✅ Post ${postId} uploaded successfully`,
       );
 
-      res.json({
-        success: true,
-        message: "Post uploaded successfully",
-        postId,
-        mediaCount: mediaFileNames.length,
-      });
+      if (!res.headersSent) {
+        res.json({
+          success: true,
+          message: "Post uploaded successfully",
+          postId,
+          mediaCount: mediaFileNames.length,
+        });
+        responseSent = true;
+      }
     } catch (r2Error) {
       console.error("R2 upload error:", r2Error);
       const errorMessage =
@@ -230,20 +256,26 @@ export const handleUpload: RequestHandler = async (req, res, next) => {
         stack: r2Error instanceof Error ? r2Error.stack : undefined,
         postId,
       });
-      res.status(500).json({
-        error: `Upload to R2 failed: ${errorMessage}`,
-        details:
-          process.env.NODE_ENV === "development" ? errorMessage : undefined,
-      });
+      if (!res.headersSent) {
+        res.status(500).json({
+          error: `Upload to R2 failed: ${errorMessage}`,
+          details:
+            process.env.NODE_ENV === "development" ? errorMessage : undefined,
+        });
+        responseSent = true;
+      }
       return;
     }
   } catch (error) {
     console.error("Upload error:", error);
     const errorMessage = error instanceof Error ? error.message : String(error);
-    res.status(500).json({
-      error: "Upload failed",
-      details:
-        process.env.NODE_ENV === "development" ? errorMessage : undefined,
-    });
+    if (!res.headersSent) {
+      res.status(500).json({
+        error: "Upload failed",
+        details:
+          process.env.NODE_ENV === "development" ? errorMessage : undefined,
+      });
+      responseSent = true;
+    }
   }
 };
