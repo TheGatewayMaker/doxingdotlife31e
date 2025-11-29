@@ -356,20 +356,65 @@ export const deleteMediaFile = async (
 };
 
 export const deletePostFolder = async (postId: string): Promise<void> => {
-  const client = getR2Client();
-  const bucketName = getBucketName();
+  try {
+    const client = getR2Client();
+    const bucketName = getBucketName();
 
-  const files = await listPostFiles(postId);
-  files.push("metadata.json");
+    console.log(`[${new Date().toISOString()}] Starting deletion of post ${postId}`);
 
-  for (const file of files) {
-    const key = `posts/${postId}/${file}`;
-    await client.send(
-      new DeleteObjectCommand({
-        Bucket: bucketName,
-        Key: key,
-      }),
+    const files = await listPostFiles(postId);
+    files.push("metadata.json");
+
+    if (files.length === 0) {
+      console.warn(`No files found for post ${postId}`);
+      return;
+    }
+
+    console.log(`[${new Date().toISOString()}] Deleting ${files.length} files from post ${postId}`);
+
+    const deleteErrors: Array<{ file: string; error: string }> = [];
+
+    for (const file of files) {
+      try {
+        const key = `posts/${postId}/${file}`;
+        console.log(`Deleting ${key}`);
+
+        await client.send(
+          new DeleteObjectCommand({
+            Bucket: bucketName,
+            Key: key,
+          }),
+        );
+
+        console.log(`✅ Deleted ${key}`);
+      } catch (fileError) {
+        const errorMsg = fileError instanceof Error ? fileError.message : String(fileError);
+        console.error(`Failed to delete file ${file}:`, errorMsg);
+        deleteErrors.push({
+          file,
+          error: errorMsg,
+        });
+      }
+    }
+
+    if (deleteErrors.length > 0) {
+      const errorSummary = deleteErrors
+        .map((e) => `${e.file}: ${e.error}`)
+        .join("; ");
+      console.error(`Some files failed to delete for post ${postId}: ${errorSummary}`);
+      throw new Error(
+        `Failed to delete ${deleteErrors.length} file(s) from post. Details: ${errorSummary}`,
+      );
+    }
+
+    console.log(`[${new Date().toISOString()}] ✅ Successfully deleted post ${postId}`);
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error(
+      `[${new Date().toISOString()}] Error deleting post ${postId}:`,
+      errorMsg,
     );
+    throw error;
   }
 };
 
