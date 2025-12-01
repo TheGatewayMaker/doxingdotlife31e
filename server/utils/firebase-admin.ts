@@ -9,31 +9,70 @@ const initializeFirebaseAdmin = () => {
   }
 
   const projectId = process.env.FIREBASE_PROJECT_ID;
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n");
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
 
+  // Validate all required config
   if (!projectId || !privateKey || !clientEmail) {
-    console.warn(
-      "Firebase Admin SDK not fully configured. Some auth features may not work.",
+    console.error(
+      "Firebase Admin SDK configuration missing - cannot initialize",
       {
         hasProjectId: !!projectId,
         hasPrivateKey: !!privateKey,
         hasClientEmail: !!clientEmail,
       },
     );
-    // Return a mock app for development
     return null;
   }
 
-  firebaseApp = admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId,
-      privateKey,
-      clientEmail,
-    }),
-  });
+  // Handle escaped newlines: convert literal \n (backslash-n) to actual newlines
+  // This is needed when the .env file contains \n instead of actual line breaks
+  privateKey = privateKey.replace(/\\n/g, "\n");
 
-  return firebaseApp;
+  // Also handle the case where quotes might be present
+  privateKey = privateKey.trim();
+  if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+    privateKey = privateKey.slice(1, -1);
+  }
+  if (privateKey.startsWith("'") && privateKey.endsWith("'")) {
+    privateKey = privateKey.slice(1, -1);
+  }
+
+  // Validate private key format
+  if (
+    !privateKey.includes("BEGIN PRIVATE KEY") ||
+    !privateKey.includes("END PRIVATE KEY")
+  ) {
+    console.error(
+      "Firebase private key format is invalid - missing BEGIN/END markers",
+      {
+        hasBegin: privateKey.includes("BEGIN PRIVATE KEY"),
+        hasEnd: privateKey.includes("END PRIVATE KEY"),
+        keyStart: privateKey.substring(0, 50),
+      },
+    );
+    return null;
+  }
+
+  try {
+    firebaseApp = admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId,
+        privateKey,
+        clientEmail,
+      }),
+    });
+    console.log(
+      `[${new Date().toISOString()}] ✅ Firebase Admin SDK initialized for project: ${projectId}`,
+    );
+    return firebaseApp;
+  } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error(
+      `[${new Date().toISOString()}] ❌ Failed to initialize Firebase Admin SDK: ${errorMsg}`,
+    );
+    return null;
+  }
 };
 
 /**
@@ -50,6 +89,9 @@ export const verifyFirebaseToken = async (
     const app = initializeFirebaseAdmin();
 
     if (!app) {
+      console.error(
+        "Firebase Admin SDK is not initialized - check configuration",
+      );
       throw new Error("Firebase Admin SDK not initialized");
     }
 
@@ -76,13 +118,20 @@ export const verifyFirebaseToken = async (
       });
     }
 
+    console.log(
+      `[${new Date().toISOString()}] Token verified - UID: ${decodedToken.uid}, Email: ${email}, Authorized: ${isAuthorized}`,
+    );
+
     return {
       uid: decodedToken.uid,
       email: decodedToken.email,
       isAuthorized,
     };
   } catch (error) {
-    console.error("Firebase token verification error:", error);
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    console.error(
+      `[${new Date().toISOString()}] Token verification failed: ${errorMsg}`,
+    );
     throw new Error("Invalid or expired token");
   }
 };
