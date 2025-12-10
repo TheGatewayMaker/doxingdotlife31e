@@ -172,7 +172,6 @@ export default function AdminPostCard({
           post={post}
           onClose={() => setShowEditModal(false)}
           onUpdate={onUpdate}
-          getIdToken={getIdToken}
         />
       )}
 
@@ -181,7 +180,6 @@ export default function AdminPostCard({
           post={post}
           onClose={() => setShowMediaModal(false)}
           onUpdate={onUpdate}
-          getIdToken={getIdToken}
         />
       )}
     </>
