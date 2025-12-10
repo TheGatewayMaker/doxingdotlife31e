@@ -2,7 +2,10 @@ import { RequestHandler } from "express";
 import { verifyFirebaseToken } from "../utils/firebase-admin";
 
 // Session storage - in production, use Redis or persistent DB
-const sessionStore: Map<string, { email: string; uid: string; createdAt: number }> = new Map();
+const sessionStore: Map<
+  string,
+  { email: string; uid: string; createdAt: number }
+> = new Map();
 
 // Session cookie name and settings
 const SESSION_COOKIE_NAME = "auth_session";
@@ -69,9 +72,7 @@ export const handleLogin: RequestHandler = async (req, res) => {
     });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
-    console.error(
-      `[${new Date().toISOString()}] Login error: ${errorMsg}`,
-    );
+    console.error(`[${new Date().toISOString()}] Login error: ${errorMsg}`);
     res.status(401).json({
       error: "Login failed",
       details: process.env.NODE_ENV === "development" ? errorMsg : undefined,
